@@ -1,5 +1,8 @@
 package com.example.demo.task;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +14,9 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ScheduledTasks {
@@ -83,7 +89,7 @@ public class ScheduledTasks {
     }
 
 
-    @Scheduled(fixedDelay = 2000)
+//    @Scheduled(fixedDelay = 2000)
     public void test5() {
 
         List<Temp> list = new ArrayList<>();
@@ -112,4 +118,38 @@ public class ScheduledTasks {
                 .collect(Collectors.toList());
         System.out.println("Flat split words: " + flatSplitWords);
     }
+
+
+    @Scheduled(fixedDelay = 2000)
+    public void test6() {
+        String jsonString = "{\n" +
+                "  \"name\": \"example\",\n" +
+                "  \"version\": 1,\n" +
+                "  \"data\": [\n" +
+                "    [{\"a\": 1, \"b\": 2, \"c\": 3}],\n" +
+                "    [{\"a\": 4, \"b\": 5, \"c\": 6}],\n" +
+                "    [{\"a\": 7, \"b\": 8, \"c\": 9}]\n" +
+                "  ],\n" +
+                "  \"description\": \"This is a test JSON\"\n" +
+                "}";
+
+        // 解析 JSON 字符串
+        JSONObject jsonObject = JSON.parseObject(jsonString);
+
+        // 提取二维数组
+        JSONArray dataArray = jsonObject.getJSONArray("data");
+
+        // 使用fastjson的flatten方法平铺二维数组为一维数组
+        JSONArray oneDimArray = new JSONArray();
+        for (int i = 0; i < dataArray.size(); i++) {
+            oneDimArray.addAll(dataArray.getJSONArray(i));
+        }
+
+        // 将一维数组放回到 JSON 对象中
+        jsonObject.put("data", oneDimArray);
+
+        // 输出结果
+        System.out.println(JSON.toJSONString(jsonObject, true));
+    }
+
 }
